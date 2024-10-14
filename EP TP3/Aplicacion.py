@@ -1,13 +1,15 @@
+# -- coding: utf-8 --
 
 import os
-
-# Archivos que almacenan los datos de personas
-archivos_personas = {
-    'dni': 'dni.txt',
-    'nombre': 'nombre.txt',
-    'apellido': 'apellido.txt'
-}
-
+def cargar_datos_archivo(ruta):
+    """Carga los datos de un archivo y devuelve el contenido o un mensaje de error."""
+    if os.path.exists(ruta):
+        with open(ruta, 'rt', encoding='utf8') as archivo:
+            return archivo.read().strip()
+    else:
+        print(f"Archivo {ruta} no encontrado.")
+        return None
+    
 def validar_usuario(usuario, clave):
     """Valida el usuario y la clave contra los archivos de login."""
     datos_login = cargar_datos_archivo('login.txt')
@@ -31,23 +33,36 @@ def iniciar_sesion():
     
     print("Demasiados intentos fallidos. Salida del sistema.")
     return False
+# Archivos que almacenan los datos de personas
+archivos_personas = {
+    'dni': 'dni.txt',
+    'nombre': 'nombre.txt',
+    'apellido': 'apellido.txt'
+}
 
-def cargar_datos_archivo(ruta):
-    """Carga los datos de un archivo y devuelve el contenido o un mensaje de error."""
-    if os.path.exists(ruta):
-        with open(ruta, 'rt', encoding='utf8') as archivo:
-            return archivo.read().strip()
-    else:
-        print(f"Archivo {ruta} no encontrado.")
-        return None
+def limitar_longitud(texto, max_longitud):
+    """Limita la longitud del texto a un máximo de caracteres."""
+    if len(texto) > max_longitud:
+        return texto[:max_longitud - 3] + "..."  # Añade '...' al final si se acorta
+    return texto
 
 def mostrar_personas():
-    """Muestra las personas registradas leyendo desde los archivos correspondientes."""
+    """Muestra las personas registradas leyendo desde los archivos correspondientes y ajustando las longitudes."""
+    max_longitud_dni = 10
+    max_longitud_nombre = 12
+    max_longitud_apellido = 15
+    
     if todos_archivos_existen():
         registros = zip(*[leer_archivo(arch) for arch in archivos_personas.values()])
-        print(f"{'DNI':<15} {'Nombre':<15} {'Apellido':<15}")
+        print(f"{'DNI':<{max_longitud_dni}} {'Nombre':<{max_longitud_nombre}} {'Apellido':<{max_longitud_apellido}}")
+        print("-" * (max_longitud_dni + max_longitud_nombre + max_longitud_apellido + 2))
         for dni, nombre, apellido in registros:
-            print(f"{dni:<15} {nombre:<15} {apellido:<15}")
+            # Limitar la longitud de cada campo
+            dni_limited = limitar_longitud(dni.strip(), max_longitud_dni)
+            nombre_limited = limitar_longitud(nombre.strip(), max_longitud_nombre)
+            apellido_limited = limitar_longitud(apellido.strip(), max_longitud_apellido)
+            
+            print(f"{dni_limited:<{max_longitud_dni}} {nombre_limited:<{max_longitud_nombre}} {apellido_limited:<{max_longitud_apellido}}")
     else:
         print("No hay registros disponibles.")
 
